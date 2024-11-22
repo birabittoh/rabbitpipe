@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"net/http"
 
 	"github.com/birabittoh/myks"
@@ -61,11 +60,6 @@ type Storyboard struct {
 	StoryboardWidth  int    `json:"storyboardWidth"`
 	StoryboardHeight int    `json:"storyboardHeight"`
 	StoryboardCount  int    `json:"storyboardCount"`
-}
-
-type VideoBuffer struct {
-	Buffer *bytes.Buffer
-	Length int64
 }
 
 type Client struct {
