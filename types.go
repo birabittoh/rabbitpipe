@@ -1,4 +1,4 @@
-package main
+package rabbitpipe
 
 import (
 	"net/http"
