@@ -66,6 +66,7 @@ type Client struct {
 	http     *http.Client
 	timeouts *myks.KeyStore[error]
 	videos   *myks.KeyStore[Video]
+	search   *myks.KeyStore[[]SearchResult]
 	Instance string
 }
 
@@ -107,4 +108,32 @@ type Video struct {
 	FormatStreams     []FormatStream   `json:"formatStreams"`
 	Captions          []Captions       `json:"captions"`
 	RecommendedVideos []Video          `json:"recommendedVideos"`
+}
+
+type SearchResult struct {
+	Type            string      `json:"type"`
+	Title           string      `json:"title"`
+	VideoID         string      `json:"videoId"`
+	Author          string      `json:"author"`
+	AuthorID        string      `json:"authorId"`
+	AuthorURL       string      `json:"authorUrl"`
+	AuthorVerified  bool        `json:"authorVerified"`
+	VideoThumbnails []Thumbnail `json:"videoThumbnails"`
+	Description     string      `json:"description"`
+	DescriptionHTML string      `json:"descriptionHtml"`
+	ViewCount       int         `json:"viewCount"`
+	ViewCountText   string      `json:"viewCountText"`
+	Published       int         `json:"published"`
+	PublishedText   string      `json:"publishedText"`
+	LengthSeconds   int         `json:"lengthSeconds"`
+	LiveNow         bool        `json:"liveNow"`
+	Premium         bool        `json:"premium"`
+	IsUpcoming      bool        `json:"isUpcoming"`
+	IsNew           bool        `json:"isNew"`
+	Is4k            bool        `json:"is4k"`
+	Is8k            bool        `json:"is8k"`
+	IsVR180         bool        `json:"isVr180"`
+	IsVR360         bool        `json:"isVr360"`
+	Is3D            bool        `json:"is3d"`
+	HasCaptions     bool        `json:"hasCaptions"`
 }

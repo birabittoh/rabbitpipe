@@ -1,16 +1,15 @@
 rabbitpipe
-----
+----------
 
 My own custom wrapper for the Invidious API.
 
 
 FEATURES
 
-• Set key-value pairs with a given expiration.
-• Set key-value pairs without a given expiration.
-• Get values of any type (uses Go generics).
-• Delete unwanted values.
-• Probably not memory-safe!
+• Get video download links.
+• Get search results.
+• Automatically change instance if the current one's failing.
+• Built-in in-memory cache!
 
 
 INSTALLING
@@ -20,23 +19,14 @@ INSTALLING
 
 USAGE
 
-`ks := myks.New[string](5 * time.Minute)` creates a new instance and
-starts a goroutine that cleans up expired entries every 5 minutes.
-You can also pass `0` to disable the cleanup goroutine altogether.
+`rp := rabbitpipe.New("")` creates a new rabbitpipe object; you can
+also set a custom starting instance.
 
-`go ks.StartCleanup(10 * time.Minute)` starts the cleanup goroutine
-at a later stage or changes its interval, if it's already started.
+`rp.GetVideo("dQw4w9WgXcQ")` gets all info for the requested video,
+including its formats.
 
-`ks.Set("key", "value", 2 * time.Minute)` sets a new key-value pair
-with an expiration of 2 minutes.
-You can also pass `0` to keep that value until the app is stopped.
-
-`ks.Get("key")` returns a pointer to the set value and an error
-value (either nil, `ks.ErrNotFound` or `ks.ErrExpired`).
-
-`ks.Delete("key")` deletes a given key-value pair.
-
-`ks.Keys()` returns an iterator for all keys that are not expired.
+`rp.Search("search query")` returns the search results that match
+the provided search query.
 
 
 LICENSE
