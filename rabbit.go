@@ -27,17 +27,12 @@ var (
 )
 
 func (c *Client) getFullEndpoint(endpoint string) string {
+	c.ensureInstance()
 	return fmt.Sprintf(endpointFormat, c.Instance, apiVersion, endpoint)
 }
 
-func doRequest[T any](c *Client, endpoint string) (res *T, statusCode int) {
-	err := c.ensureInstance()
-	if err != nil {
-		logger.Println("ERROR: Could not get a valid instance: ", err)
-		return nil, http.StatusInternalServerError
-	}
-
-	resp, err := c.http.Get(c.getFullEndpoint(endpoint))
+func doRequest[T any](c *Client, url string) (res *T, statusCode int) {
+	resp, err := c.http.Get(url)
 	if err != nil {
 		logger.Println(err)
 		return nil, http.StatusInternalServerError
@@ -69,14 +64,24 @@ func doRequest[T any](c *Client, endpoint string) (res *T, statusCode int) {
 	return res, http.StatusOK
 }
 
+func doInstanceRequest[T any](c *Client, endpoint string) (*T, int) {
+	err := c.ensureInstance()
+	if err != nil {
+		logger.Println("ERROR: Could not get a valid instance: ", err)
+		return nil, http.StatusInternalServerError
+	}
+
+	return doRequest[T](c, c.getFullEndpoint(endpoint))
+}
+
 func (c *Client) fetchVideo(videoId string) (*Video, int) {
 	endpoint := videosEndpoint + "/" + url.QueryEscape(videoId)
-	return doRequest[Video](c, endpoint)
+	return doInstanceRequest[Video](c, endpoint)
 }
 
 func (c *Client) fetchSearch(query string) (*[]SearchResult, int) {
 	endpoint := searchEndpoint + "?q=" + url.QueryEscape(query)
-	return doRequest[[]SearchResult](c, endpoint)
+	return doInstanceRequest[[]SearchResult](c, endpoint)
 }
 
 func (c *Client) ensureInstance() error {

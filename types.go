@@ -2,6 +2,7 @@ package rabbitpipe
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/birabittoh/myks"
 )
@@ -127,4 +128,88 @@ type SearchResult struct {
 	IsVR360         bool        `json:"isVr360"`
 	Is3D            bool        `json:"is3d"`
 	HasCaptions     bool        `json:"hasCaptions"`
+}
+
+// Instances
+type Server [2]interface{}
+
+type Detail struct {
+	Flag    string   `json:"flag"`
+	Region  string   `json:"region"`
+	Stats   *Stats   `json:"stats,omitempty"`
+	CORS    *bool    `json:"cors,omitempty"`
+	API     *bool    `json:"api,omitempty"`
+	Type    string   `json:"type"`
+	URI     string   `json:"uri"`
+	Monitor *Monitor `json:"monitor,omitempty"`
+}
+
+type Stats struct {
+	Version  string    `json:"version"`
+	Software Software  `json:"software"`
+	Usage    Usage     `json:"usage"`
+	Metadata Metadata  `json:"metadata"`
+	Playback *Playback `json:"playback,omitempty"`
+}
+
+type Software struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+	Branch  string `json:"branch"`
+}
+
+type Usage struct {
+	Users Users `json:"users"`
+}
+
+type Users struct {
+	Total          int `json:"total"`
+	ActiveHalfYear int `json:"activeHalfyear"`
+	ActiveMonth    int `json:"activeMonth"`
+}
+
+type Metadata struct {
+	UpdatedAt              int64 `json:"updatedAt"`
+	LastChannelRefreshedAt int64 `json:"lastChannelRefreshedAt"`
+}
+
+type Playback struct {
+	TotalRequests      int     `json:"totalRequests"`
+	SuccessfulRequests int     `json:"successfulRequests"`
+	Ratio              float64 `json:"ratio"`
+}
+
+type Monitor struct {
+	Token             string            `json:"token"`
+	URL               string            `json:"url"`
+	Alias             string            `json:"alias"`
+	LastStatus        int               `json:"last_status"`
+	Uptime            float64           `json:"uptime"`
+	Down              bool              `json:"down"`
+	DownSince         *time.Time        `json:"down_since,omitempty"`
+	UpSince           time.Time         `json:"up_since"`
+	Error             *string           `json:"error,omitempty"`
+	Period            int               `json:"period"`
+	ApdexT            float64           `json:"apdex_t"`
+	StringMatch       string            `json:"string_match"`
+	Enabled           bool              `json:"enabled"`
+	Published         bool              `json:"published"`
+	DisabledLocations []string          `json:"disabled_locations"`
+	Recipients        []string          `json:"recipients"`
+	LastCheckAt       time.Time         `json:"last_check_at"`
+	NextCheckAt       time.Time         `json:"next_check_at"`
+	CreatedAt         time.Time         `json:"created_at"`
+	MuteUntil         *string           `json:"mute_until,omitempty"`
+	FaviconURL        string            `json:"favicon_url"`
+	CustomHeaders     map[string]string `json:"custom_headers"`
+	HTTPVerb          string            `json:"http_verb"`
+	HTTPBody          string            `json:"http_body"`
+	SSL               SSL               `json:"ssl"`
+}
+
+type SSL struct {
+	TestedAt  time.Time `json:"tested_at"`
+	ExpiresAt time.Time `json:"expires_at"`
+	Valid     bool      `json:"valid"`
+	Error     *string   `json:"error,omitempty"`
 }

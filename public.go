@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -35,34 +34,33 @@ func (c *Client) NewInstance() error {
 		c.timeouts.Set(c.Instance, fmt.Errorf("generic error"), time.Hour)
 	}
 
-	resp, err := c.http.Get(instancesEndpoint)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
+	res, statusCode := doRequest[[]Server](c, instancesEndpoint)
+	if statusCode != http.StatusOK {
+		return fmt.Errorf("HTTP error: %d", statusCode)
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP error: %d", resp.StatusCode)
-	}
+	for _, server := range *res {
+		name := server[0].(string)
 
-	var jsonArray [][]interface{}
-	err = json.Unmarshal(body, &jsonArray)
-	if err != nil {
-		logger.Printf("ERROR: Could not unmarshal JSON response for instances.")
-		return err
-	}
+		detail := Detail{}
+		detailData, _ := json.Marshal(server[1])
+		json.Unmarshal(detailData, &detail)
 
-	for i := range jsonArray {
-		instance := jsonArray[i][0].(string)
+		if detail.Type != "https" {
+			continue
+		}
 
-		_, err := c.timeouts.Get(instance)
+		if detail.API == nil {
+			continue
+		}
+
+		if !*detail.API {
+			continue
+		}
+
+		_, err := c.timeouts.Get(name)
 		if err != nil {
-			c.Instance = instance
+			c.Instance = name
 			logger.Print("Using new instance: ", c.Instance)
 			return nil
 		}
