@@ -13,12 +13,15 @@ import (
 	"github.com/birabittoh/myks"
 )
 
+const defaultCacheInterval = time.Hour
+
 func New(defaultInstance string) *Client {
 	client := &Client{
 		http:     http.DefaultClient,
 		timeouts: myks.New[error](time.Minute),
-		videos:   myks.New[Video](time.Hour),
-		search:   myks.New[[]SearchResult](2 * time.Hour),
+		videos:   myks.New[Video](defaultCacheInterval),
+		search:   myks.New[[]SearchResult](defaultCacheInterval),
+		captions: myks.New[[]byte](defaultCacheInterval),
 		Instance: defaultInstance,
 	}
 
@@ -142,4 +145,31 @@ func (c *Client) Search(query string) (*[]SearchResult, error) {
 
 func (c *Client) GetCachedVideos() iter.Seq[string] {
 	return c.videos.Keys()
+}
+
+func (c *Client) GetCaptions(videoID, language string) ([]byte, error) {
+	key := videoID + language
+	captions, err := c.captions.Get(key)
+	if err == nil {
+		return *captions, nil
+	}
+
+	result, httpErr := c.fetchCaptions(videoID, language)
+
+	switch httpErr {
+	case http.StatusOK:
+		logger.Printf("Retrieved by API.")
+	case http.StatusNotFound:
+		return nil, errors.New("captions do not exist or can't be retrieved")
+	default:
+		err = c.NewInstance()
+		if err != nil {
+			logger.Print("ERROR: ", err)
+			time.Sleep(10 * time.Second)
+		}
+		return c.GetCaptions(videoID, language)
+	}
+
+	c.captions.Set(key, result, 5*time.Hour)
+	return result, nil
 }

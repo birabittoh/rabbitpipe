@@ -12,6 +12,7 @@ const (
 	testInstance = "inv.nadeko.net"
 	testVideoID  = "qRY0m96ESZU"
 	testQuery    = "youtube dl test video"
+	testCaptions = "English (auto-generated)"
 )
 
 func TestFetchVideo(t *testing.T) {
@@ -91,4 +92,17 @@ func TestGetCachedVideos(t *testing.T) {
 	}
 
 	t.Fatalf("Expected videos to contain %q", testVideoID)
+}
+
+func TestGetCaptions(t *testing.T) {
+	client := New(testInstance)
+
+	captions, err := client.GetCaptions(testVideoID, testCaptions)
+	if err != nil {
+		t.Fatalf("Expected nil error, got %v", err)
+	}
+
+	if captions == nil {
+		t.Fatal("Expected captions, got nil")
+	}
 }

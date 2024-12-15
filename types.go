@@ -59,6 +59,7 @@ type Client struct {
 	timeouts *myks.KeyStore[error]
 	videos   *myks.KeyStore[Video]
 	search   *myks.KeyStore[[]SearchResult]
+	captions *myks.KeyStore[[]byte]
 	Instance string
 }
 
