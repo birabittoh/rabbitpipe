@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"iter"
 	"net/http"
 	"strconv"
 	"strings"
@@ -137,4 +138,8 @@ func (c *Client) Search(query string) (*[]SearchResult, error) {
 		}
 		return c.Search(query)
 	}
+}
+
+func (c *Client) GetCachedVideos() iter.Seq[string] {
+	return c.videos.Keys()
 }

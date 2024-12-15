@@ -4,19 +4,18 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+
+	"github.com/birabittoh/myks"
 )
 
 const (
 	testInstance = "inv.nadeko.net"
-	testVideoID  = "BaW_jenozKc"
-	testQuery    = "youtube-dl test video"
+	testVideoID  = "qRY0m96ESZU"
+	testQuery    = "youtube dl test video"
 )
 
 func TestFetchVideo(t *testing.T) {
-	client := &Client{
-		http:     http.DefaultClient,
-		Instance: testInstance,
-	}
+	client := New(testInstance)
 
 	video, statusCode := client.fetchVideo(testVideoID)
 	if statusCode != http.StatusOK {
@@ -38,10 +37,7 @@ func TestFetchVideo(t *testing.T) {
 }
 
 func TestFetchSearch(t *testing.T) {
-	client := &Client{
-		http:     http.DefaultClient,
-		Instance: testInstance,
-	}
+	client := New(testInstance)
 
 	results, statusCode := client.fetchSearch(testQuery)
 	if statusCode != http.StatusOK {
@@ -66,7 +62,10 @@ func TestFetchSearch(t *testing.T) {
 }
 
 func TestEnsureInstance(t *testing.T) {
-	client := New("")
+	client := &Client{
+		http:     http.DefaultClient,
+		timeouts: &myks.KeyStore[error]{},
+	}
 
 	err := client.ensureInstance()
 	if err != nil {
@@ -76,4 +75,20 @@ func TestEnsureInstance(t *testing.T) {
 	if client.Instance == "" {
 		t.Fatal("Expected instance to be set")
 	}
+}
+
+func TestGetCachedVideos(t *testing.T) {
+	client := New("")
+
+	client.GetVideo(testVideoID)
+
+	videos := client.GetCachedVideos()
+
+	for id := range videos {
+		if id == testVideoID {
+			return
+		}
+	}
+
+	t.Fatalf("Expected videos to contain %q", testVideoID)
 }
